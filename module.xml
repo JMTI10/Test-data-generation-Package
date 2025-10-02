@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="IRIS" version="1.0">
+  <Document name="test-data-generation">
+    <Module>
+      <!-- Module Metadata -->
+      <Name>test-data-generation</Name>
+      <Version>1.0.0</Version>
+      <Packaging>module</Packaging>
+      <Description>Test data generation utilities for Patient, FHIR, and HL7</Description>
+      <Keywords>FHIR, HL7, Patient, TestData</Keywords>
+      <License>MIT</License>
+      <Author>YourName</Author>
+
+      <!-- Code location -->
+      <SourcesRoot>src/testdata</SourcesRoot>
+
+      <!-- Package mappings -->
+      <Resource Name="DataGeneration.PatientDataGenerator.cls"/>
+      <Resource Name="DataGeneration.FHIRGenerator.cls"/>
+      <Resource Name="DataGeneration.HL7Generator.cls"/>
+      <Resource Name="TestData.PatientGeneratorTest.cls"/>
+      <Resource Name="TestData.FHIRGeneratorTest.cls"/>
+      <Resource Name="TestData.HL7GeneratorTest.cls"/>
+
+    </Module>
+  </Document>
+</Export>
