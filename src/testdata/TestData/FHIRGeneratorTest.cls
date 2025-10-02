@@ -20,12 +20,13 @@ ClassMethod Run()
 
     // Test 4: Telecom must include phone
     Set foundPhone=0
-    For i=1:1:obj.telecom.%Size() {
+    For i=0:1:(obj.telecom.%Size()-1) {
         If obj.telecom.%Get(i).system="phone" {
             Set foundPhone=1
-        }
+        }   
     }
     Do ..Assert(foundPhone, "Telecom includes phone")
+
 
     Write !,"FHIRGenerator Tests Complete",!
 }

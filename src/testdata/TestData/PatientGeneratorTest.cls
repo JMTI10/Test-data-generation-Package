@@ -8,17 +8,18 @@ ClassMethod Run()
     Set json = ##class(DataGeneration.PatientDataGenerator).Generate()
     Set obj = {}.%FromJSON(json)
 
-    // Test 1: Has required fields
+    // Test 1
     Do ..Assert(obj.%IsDefined("id"), "Patient must have an id")
     Do ..Assert(obj.%IsDefined("firstName"), "Patient must have firstName")
     Do ..Assert(obj.%IsDefined("lastName"), "Patient must have lastName")
     Do ..Assert(obj.%IsDefined("dob"), "Patient must have date of birth")
 
-    // Test 2: Gender must be male or female
-    Do ..Assert($Listfind("male,female", obj.gender)>0, "Gender must be 'male' or 'female'")
+    // Test 2
+    Do ..Assert((obj.gender="male")!(obj.gender="female"), "Gender must be 'male' or 'female'")
 
-    // Test 3: Email must contain '@'
-    Do ..Assert(obj.email [ "@", "Email must contain @")
+    // Test
+    Do ..Assert($Find(obj.email,"@")>0, "Email must contain @")
+
 
     Write !,"PatientDataGenerator Tests Complete",!
 }
