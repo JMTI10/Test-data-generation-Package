@@ -27,7 +27,7 @@ Load the Code into IRIS
 
 Open a terminal inside IRIS:
 
-docker exec -it iris iris session iris
+docker exec -it <Container_name> iris session iris
 
 
 Switch to the USER namespace (default):
