@@ -36,15 +36,15 @@ ClassMethod Generate() As %String
     Do fhir.%Set("telecom", telecomArr)
 
     // Address
-    Set addrArr = []
-    Set addr = {}
     Set addr.city  = ##class(%Library.PopulateUtils).City()
+    Set addr.state = ##class(%Library.PopulateUtils).StateAbbrev()
+    Set addr.postalCode = $Random(89999)+10000
 
     // Random US state abbreviation
-    Set states="AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY"
-    Set stateList=$LISTFROMSTRING(states,",")
-    Set randIndex=$Random($LISTLENGTH(stateList))+1
-    Set addr.state=$LISTGET(stateList,randIndex)
+    Set cities = "Helsinki,Tampere,Turku,Oulu,Espoo,Vantaa,Kuopio,Lahti,Jyväskylä,Joensuu"
+    Set addr.city = $Piece(cities,",",$Random($Length(cities,",")+1))
+    Set addr.country = "FI"
+    Set addr.postalCode = $Random(89999)+10000
 
     Set addr.postalCode = $Random(90000) + 10000
 

@@ -19,7 +19,7 @@ InterSystems IRIS Community Edition
 Example container run:
 
 docker run -d --name iris \
-  -v C:\Users\idg\Downloads\Test-data-generation-Package:/irisdev/app \
+  -v C:\path\Test-data-generation-Package:/irisdev/app \
   -p 52773:52773 -p 1972:1972 \
   intersystems/irishealth-community:2025.1
 
