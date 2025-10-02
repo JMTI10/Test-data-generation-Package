@@ -5,24 +5,23 @@ ClassMethod Run()
 {
     Write !,"--- HL7Generator Tests ---",!
 
-    // Generate an HL7 message
     Set msg = ##class(DataGeneration.HL7Generator).Generate()
 
-    // Test 1
-    Do ..Assert($Extract(msg,1,4)="MSH|", "Message starts with MSH|")
+    // check message starts right
+    Do ..Assert($Extract(msg,1,4)="MSH|","starts with MSH|")
 
-    // Test 2
-    Do ..Assert(msg["PID|", "Message contains PID segment")
+    // should have a PID
+    Do ..Assert(msg["PID|","has PID segment")
 
-    // Test 3
-    Do ..Assert(msg["2.3", "HL7 version 2.3 present")
+    // should mention HL7 version
+    Do ..Assert(msg["2.3","has HL7 v2.3")
 
-    // Test 4
+    // gender check in PID
     Set pid = $Piece(msg,"PID|",2)
     Set gender = $Piece(pid,"|",8)
-    Do ..Assert($ListFind($LB("M","F"),gender)>0, "Gender is M or F")
+    Do ..Assert($ListFind($LB("M","F"),gender)>0,"gender is M or F")
 
-    Write !,"HL7Generator Tests Complete",!
+    Write !,"HL7Generator Tests done",!
 }
 
 ClassMethod Assert(cond As %Boolean, msg As %String)

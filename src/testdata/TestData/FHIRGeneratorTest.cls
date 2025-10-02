@@ -8,27 +8,27 @@ ClassMethod Run()
     Set json = ##class(DataGeneration.FHIRGenerator).Generate()
     Set obj = {}.%FromJSON(json)
 
-    // Test 1
-    Do ..Assert(obj.resourceType="Patient", "ResourceType is Patient")
+    // check resource type
+    Do ..Assert(obj.resourceType="Patient","resourceType = Patient")
 
-    // Test 2
-    Do ..Assert(obj.%IsDefined("name") && obj.name.%Size()>0, "Has name array")
+    // must have a name
+    Do ..Assert(obj.%IsDefined("name") && obj.name.%Size()>0,"has a name")
 
-    // Test 3
-    Set ok = $Match(obj.birthDate, "^\d{4}-\d{2}-\d{2}$")
-    Do ..Assert(ok, "BirthDate has format YYYY-MM-DD")
+    // birthDate should be YYYY-MM-DD
+    Set ok = $Match(obj.birthDate,"^\d{4}-\d{2}-\d{2}$")
+    Do ..Assert(ok,"birthDate format looks ok")
 
-    // Test 4
-    Set foundPhone=0
+    // make sure there's a phone
+    Set hasPhone=0
     For i=0:1:(obj.telecom.%Size()-1) {
         If obj.telecom.%Get(i).system="phone" {
-            Set foundPhone=1
-        }   
+            Set hasPhone=1
+            Quit
+        }
     }
-    Do ..Assert(foundPhone, "Telecom includes phone")
+    Do ..Assert(hasPhone,"telecom includes a phone")
 
-
-    Write !,"FHIRGenerator Tests Complete",!
+    Write !,"FHIRGenerator Tests done",!
 }
 
 ClassMethod Assert(cond As %Boolean, msg As %String)

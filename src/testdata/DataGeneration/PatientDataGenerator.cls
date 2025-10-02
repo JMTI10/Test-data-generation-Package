@@ -3,30 +3,29 @@ Class DataGeneration.PatientDataGenerator Extends %RegisteredObject
 
 ClassMethod Generate() As %String
 {
-    // Create object for patient
     Set patient = {}
-
-    // Demographics
-    Set patient.id        = $SYSTEM.Util.CreateGUID()
+    Set patient.id = $SYSTEM.Util.CreateGUID()
     Set patient.firstName = ##class(%Library.PopulateUtils).FirstName()
-    Set patient.lastName  = ##class(%Library.PopulateUtils).LastName()
-    Set patient.dob       = $ZDATE($H-($RANDOM(30000)+5000),8)
-    Set patient.gender    = $Select($Random(2):"male", 1:"female")
+    Set patient.lastName = ##class(%Library.PopulateUtils).LastName()
+    Set patient.dob = $ZDATE($H-($Random(30000)+5000),8)
+    Set patient.gender = $Select($Random(2):"male",1:"female")
 
-    // Contact info
-    Set patient.phone = "(555)-"_($Random(900)+100)_"-"_($Random(9000)+1000)
-    Set patient.email = patient.firstName_"."_patient.lastName_"@"_"example.com"
+    // phone
+    Set prefixes = "40,41,44,45,50"
+    Set pref = $Piece(prefixes,",",$Random($Length(prefixes,",")+1))
+    Set patient.phone = "+358 " _ pref _ " " _ ($Random(900)+100) _ " " _ ($Random(9000)+1000)
 
-    // Address
+    // basic email
+    Set patient.email = patient.firstName_"."_patient.lastName_"@example.com"
+
+    // address
     Set addr = {}
-    Set addr.city  = ##class(%Library.PopulateUtils).City()
-    
-    // Since PopulateUtils
-    Set states="CA,NY,TX,FL,MA,IL,WA,GA,NC,PA"
-    Set addr.state = $Piece(states,",",$Random($Length(states,",")+1))
-    
-    Set addr.zip   = $Random(89999)+10000
-    Do patient.%Set("address", addr)
+    Set cities = "Helsinki,Tampere,Turku,Oulu,Espoo,Vantaa,Kuopio,Lahti,Jyvaskyla,Joensuu"
+    Set addr.city = $Piece(cities,",",$Random($Length(cities,",")+1))
+    Set addr.zip = $Random(90000)+10000
+    Set addr.country = "FI"
+
+    Do patient.%Set("address",addr)
 
     Quit patient.%ToJSON()
 }

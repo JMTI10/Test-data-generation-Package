@@ -1,33 +1,33 @@
-Class DataGeneration.HL7Generator
+Class TestData.HL7GeneratorTest
 {
 
-/// Generate a simple HL7
-ClassMethod Generate() As %String
+ClassMethod Run()
 {
-    // Unique ID
-    Set id = $SYSTEM.Util.CreateGUID()
+    Write !,"--- Running HL7Generator Tests ---",!
 
-    // HL7 date/time format: YYYYMMDDHHMMSS
-    Set now = $ZDATETIME($HOROLOG,14)
+    // Generate a test HL7 message
+    Set msg = ##class(DataGeneration.HL7Generator).Generate()
 
-    // MSH segment
-    Set msg = "MSH|^~\&|TestApp|TestFacility|DestApp|DestFacility|"_now_"||ADT^A01|"_id_"|P|2.3"_$C(13)
+    // Basic checks
+    Do ..Assert($Extract(msg,1,4)="MSH|", "Message begins with MSH")
+    Do ..Assert(msg["PID|", "PID segment included")
+    Do ..Assert(msg["2.3", "Version 2.3 present")
 
-    // PID segment
-    Set first  = ##class(%Library.PopulateUtils).FirstName()
-    Set last   = ##class(%Library.PopulateUtils).LastName()
-    Set gender = $Select($Random(2):"M", 1:"F")
+    // Check gender field from PID
+    Set pid = $Piece(msg,"PID|",2)
+    Set gender = $Piece(pid,"|",8)
+    Do ..Assert($ListFind($LB("M","F"),gender)>0, "Gender is M or F")
 
-    // Random DOB in DDMMYYYY format
-    Set randH = $HOROLOG - ($RANDOM(30000) + 5000)
-    Set dobYMD = $ZDATE(randH,8)
-    
-    // Reformat to DDMMYYYY
-    Set dob = $E(dobYMD,7,8)_$E(dobYMD,5,6)_$E(dobYMD,1,4)
+    Write !,"HL7Generator Tests Finished",!
+}
 
-    Set pid = "PID|||"_id_"||"_last_"^"_first_"||"_dob_"|"_gender_"|||123 Fake St^^Springfield^IL^62704|||(555)555-1234|||S|"_$C(13)
-
-    Quit msg _ pid
+ClassMethod Assert(cond As %Boolean, msg As %String)
+{
+    If cond {
+        Write "PASS: ", msg, !
+    } Else {
+        Write "FAIL: ", msg, !
+    }
 }
 
 }
