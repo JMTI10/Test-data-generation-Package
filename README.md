@@ -36,22 +36,24 @@ ZN "USER"
 
 
 Load the classes:
-
 do $system.OBJ.LoadDir("/irisdev/app/src/testdata/DataGeneration","ck")
+
 do $system.OBJ.LoadDir("/irisdev/app/src/testdata/TestData","ck")
 
 Run the Generators
 WRITE ##class(DataGeneration.PatientDataGenerator).Generate()
+
 WRITE ##class(DataGeneration.FHIRGenerator).Generate()
+
 WRITE ##class(DataGeneration.HL7Generator).Generate()
 
 
 Each call will output a synthetic record.
 
 Run the Tests
-DO ##class(TestData.PatientGeneratorTest).Run()
-DO ##class(TestData.FHIRGeneratorTest).Run()
-DO ##class(TestData.HL7GeneratorTest).Run()
+do ##class(TestData.PatientGeneratorTest).Run()
+do ##class(TestData.FHIRGeneratorTest).Run()
+do ##class(TestData.HL7GeneratorTest).Run()
 
 
 Tests will print PASS/FAIL messages for key validations.
