@@ -1,7 +1,7 @@
 Class DataGeneration.HL7Generator
 {
 
-/// Generate a simple HL7 v2.3 ADT^A01 message
+/// Generate a simple HL7
 ClassMethod Generate() As %String
 {
     // Unique ID
@@ -20,7 +20,8 @@ ClassMethod Generate() As %String
 
     // Random DOB in DDMMYYYY format
     Set randH = $HOROLOG - ($RANDOM(30000) + 5000)
-    Set dobYMD = $ZDATE(randH,8)  // YYYYMMDD
+    Set dobYMD = $ZDATE(randH,8)
+    
     // Reformat to DDMMYYYY
     Set dob = $E(dobYMD,7,8)_$E(dobYMD,5,6)_$E(dobYMD,1,4)
 

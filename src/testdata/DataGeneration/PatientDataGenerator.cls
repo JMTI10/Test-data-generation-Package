@@ -3,7 +3,7 @@ Class DataGeneration.PatientDataGenerator Extends %RegisteredObject
 
 ClassMethod Generate() As %String
 {
-    // Create a dynamic object for patient
+    // Create object for patient
     Set patient = {}
 
     // Demographics
@@ -21,7 +21,7 @@ ClassMethod Generate() As %String
     Set addr = {}
     Set addr.city  = ##class(%Library.PopulateUtils).City()
     
-    // Since PopulateUtils doesn’t have State, fake it with a list
+    // Since PopulateUtils
     Set states="CA,NY,TX,FL,MA,IL,WA,GA,NC,PA"
     Set addr.state = $Piece(states,",",$Random($Length(states,",")+1))
     

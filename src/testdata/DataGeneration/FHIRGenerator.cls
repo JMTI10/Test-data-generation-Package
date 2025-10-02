@@ -13,7 +13,7 @@ ClassMethod Generate() As %String
     Set nameObj = {}
     Set nameObj.use = "official"
     Set nameObj.family = ##class(%Library.PopulateUtils).LastName()
-    Set nameObj.given = []   // initialize given as array
+    Set nameObj.given = []
     Do nameObj.given.%Push(##class(%Library.PopulateUtils).FirstName())
     Do nameArr.%Push(nameObj)
     Do fhir.%Set("name", nameArr)
@@ -21,10 +21,10 @@ ClassMethod Generate() As %String
     // Gender & DOB
     Set fhir.gender = $Select($Random(2):"male", 1:"female")
 
-      // Generate DOB in YYYY-MM-DD format
-    Set randDays = $Random(30000)+5000  // between ~13 and ~82 years ago
+
+    Set randDays = $Random(30000)+5000
     Set pastDate = $H - randDays
-    Set rawDate = $ZDATE(pastDate,8)    // YYYYMMDD
+    Set rawDate = $ZDATE(pastDate,8)
     Set dob = $E(rawDate,1,4)_"-"_$E(rawDate,5,6)_"-"_$E(rawDate,7,8)
     Set fhir.birthDate = dob
 
