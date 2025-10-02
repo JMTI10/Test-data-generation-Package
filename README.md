@@ -56,7 +56,9 @@ do ##class(TestData.FHIRGeneratorTest).Run()
 do ##class(TestData.HL7GeneratorTest).Run()
 
 Run all Generators and test
+
 do $system.OBJ.LoadDir("/irisdev/app/src/testdata/DataGeneration","ck")
+
 do $system.OBJ.LoadDir("/irisdev/app/src/testdata/TestData","ck")
 
 Tests will print PASS/FAIL messages for key validations.
