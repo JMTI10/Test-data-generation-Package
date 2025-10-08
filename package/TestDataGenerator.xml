@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="IRIS" version="26" zv="IRIS for UNIX (Ubuntu Server LTS for x86-64 Containers) 2025.1 (Build 230.2U)" ts="2025-10-08 14:37:12">
+<Class name="DataGeneration.FHIRGenerator">
+<TimeChanged>67480,44823.137696357</TimeChanged>
+<TimeCreated>67480,40205.090973474</TimeCreated>
+
+<Method name="Generate">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+    // base resource
+    Set fhir = {}
+    Set fhir.resourceType = "Patient"
+    Set fhir.id = $SYSTEM.Util.CreateGUID()
+
+    // name block
+    Set nameArr = []
+    Set nameObj = {}
+    Set nameObj.use = "official"
+    Set nameObj.family = ##class(%Library.PopulateUtils).LastName()
+    Set nameObj.given = []
+    Do nameObj.given.%Push(##class(%Library.PopulateUtils).FirstName())
+    Do nameArr.%Push(nameObj)
+    Do fhir.%Set("name", nameArr)
+
+    // gender + dob
+    Set fhir.gender = $Select($Random(2):"male",1:"female")
+
+    Set randDays = $Random(30000)+5000  // go back some random days
+    Set pastDate = $H - randDays
+    Set rawDate = $ZDATE(pastDate,8)
+    Set dob = $E(rawDate,1,4)_"-"_$E(rawDate,5,6)_"-"_$E(rawDate,7,8)
+    Set fhir.birthDate = dob
+
+    // telecom: finnish phone + dummy email
+    Set telecomArr = []
+
+    Set phonePrefixes = "40,41,44,45,50"
+    Set prefix = $Piece(phonePrefixes,",",$Random($Length(phonePrefixes,",")+1))
+    Set phone = "+358 " _ prefix _ " " _ ($Random(900)+100) _ " " _ ($Random(9000)+1000)
+
+    Set tel = {}
+    Do tel.%Set("system","phone")
+    Do tel.%Set("value",phone)
+    Do tel.%Set("use","home")
+    Do telecomArr.%Push(tel)
+
+    Set mail = {}
+    Do mail.%Set("system","email")
+    Do mail.%Set("value","test@example.com")
+    Do mail.%Set("use","home")
+    Do telecomArr.%Push(mail)
+
+    Do fhir.%Set("telecom", telecomArr)
+
+    // address: simple finnish city + postal
+    Set addrArr = []
+    Set addr = {}
+
+    Set cities = "Helsinki,Tampere,Turku,Oulu,Espoo,Vantaa,Kuopio,Lahti,Jyvaskyla,Joensuu"
+    Do addr.%Set("city",$Piece(cities,",",$Random($Length(cities,",")+1)))
+    Do addr.%Set("country","FI")
+    Do addr.%Set("postalCode",$Random(90000)+10000)
+
+    Do addrArr.%Push(addr)
+    Do fhir.%Set("address",addrArr)
+
+    Quit fhir.%ToJSON()
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="DataGeneration.HL7Generator">
+<TimeChanged>67480,41188.815090835</TimeChanged>
+<TimeCreated>67480,40205.070561308</TimeCreated>
+
+<Method name="Generate">
+<Description>
+Generate a simple HL7 v2.3 ADT^A01 message</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+    // Unique ID
+    Set id = $SYSTEM.Util.CreateGUID()
+
+    // HL7 date/time format: YYYYMMDDHHMMSS
+    Set now = $ZDATETIME($HOROLOG,14)
+
+    // MSH segment
+    Set msg = "MSH|^~\&|TestApp|TestFacility|DestApp|DestFacility|"_now_"||ADT^A01|"_id_"|P|2.3"_$C(13)
+
+    // PID segment
+    Set first  = ##class(%Library.PopulateUtils).FirstName()
+    Set last   = ##class(%Library.PopulateUtils).LastName()
+    Set gender = $Select($Random(2):"M", 1:"F")
+
+    // Random DOB in DDMMYYYY format
+    Set randH = $HOROLOG - ($RANDOM(30000) + 5000)
+    Set dobYMD = $ZDATE(randH,8)  // YYYYMMDD
+    // Reformat to DDMMYYYY
+    Set dob = $E(dobYMD,7,8)_$E(dobYMD,5,6)_$E(dobYMD,1,4)
+
+    Set pid = "PID|||"_id_"||"_last_"^"_first_"||"_dob_"|"_gender_"|||123 Fake St^^Springfield^IL^62704|||(555)555-1234|||S|"_$C(13)
+
+    Quit msg _ pid
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="DataGeneration.PatientDataGenerator">
+<Super>%RegisteredObject</Super>
+<TimeChanged>67480,44409.945782972</TimeChanged>
+<TimeCreated>67480,40277.664815035</TimeCreated>
+
+<Method name="Generate">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+    Set patient = {}
+    Set patient.id = $SYSTEM.Util.CreateGUID()
+    Set patient.firstName = ##class(%Library.PopulateUtils).FirstName()
+    Set patient.lastName = ##class(%Library.PopulateUtils).LastName()
+    Set patient.dob = $ZDATE($H-($Random(30000)+5000),8)
+    Set patient.gender = $Select($Random(2):"male",1:"female")
+
+    // phone
+    Set prefixes = "40,41,44,45,50"
+    Set pref = $Piece(prefixes,",",$Random($Length(prefixes,",")+1))
+    Set patient.phone = "+358 " _ pref _ " " _ ($Random(900)+100) _ " " _ ($Random(9000)+1000)
+
+    // basic email
+    Set patient.email = patient.firstName_"."_patient.lastName_"@example.com"
+
+    // address
+    Set addr = {}
+    Set cities = "Helsinki,Tampere,Turku,Oulu,Espoo,Vantaa,Kuopio,Lahti,Jyvaskyla,Joensuu"
+    Set addr.city = $Piece(cities,",",$Random($Length(cities,",")+1))
+    Set addr.zip = $Random(90000)+10000
+    Set addr.country = "FI"
+
+    Do patient.%Set("address",addr)
+
+    Quit patient.%ToJSON()
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="MyPackage.Installer">
+<TimeChanged>67486,52520.355319368</TimeChanged>
+<TimeCreated>67486,52520.355319368</TimeCreated>
+
+<Method name="Install">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+    write "Installing Test Data Generator...",!
+    write "Loading DataGeneration classes...",!
+    do $system.OBJ.LoadDir("/irisdev/app/src/testdata/DataGeneration","ck")
+    write "Loading TestData classes...",!
+    do $system.OBJ.LoadDir("/irisdev/app/src/testdata/TestData","ck")
+    write "✓ Installation complete!",!
+    write !,"Available commands:",!
+    write "  WRITE ##class(DataGeneration.PatientDataGenerator).Generate()",!
+    write "  WRITE ##class(DataGeneration.FHIRGenerator).Generate()",!
+    write "  WRITE ##class(DataGeneration.HL7Generator).Generate()",!
+    write "  do ##class(TestData.PatientGeneratorTest).Run()",!
+    write "  do ##class(TestData.FHIRGeneratorTest).Run()",!
+    write "  do ##class(TestData.HL7GeneratorTest).Run()",!
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="TestData.FHIRGeneratorTest">
+<TimeChanged>67480,45297.673597629</TimeChanged>
+<TimeCreated>67480,41482.301887721</TimeCreated>
+
+<Method name="Run">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+    Write !,"--- FHIRGenerator Tests ---",!
+
+    Set json = ##class(DataGeneration.FHIRGenerator).Generate()
+    Set obj = {}.%FromJSON(json)
+
+    // check resource type
+    Do ..Assert(obj.resourceType="Patient","resourceType = Patient")
+
+    // must have a name
+    Do ..Assert(obj.%IsDefined("name") && obj.name.%Size()>0,"has a name")
+
+    // birthDate should be YYYY-MM-DD
+    Set ok = $Match(obj.birthDate,"^\d{4}-\d{2}-\d{2}$")
+    Do ..Assert(ok,"birthDate format looks ok")
+
+    // make sure there's a phone
+    Set hasPhone=0
+    For i=0:1:(obj.telecom.%Size()-1) {
+        If obj.telecom.%Get(i).system="phone" {
+            Set hasPhone=1
+            Quit
+        }
+    }
+    Do ..Assert(hasPhone,"telecom includes a phone")
+
+    Write !,"FHIRGenerator Tests done",!
+]]></Implementation>
+</Method>
+
+<Method name="Assert">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>cond:%Boolean,msg:%String</FormalSpec>
+<Implementation><![CDATA[
+    If cond {
+        Write "PASS: ",msg,!
+    } Else {
+        Write "FAIL: ",msg,!
+    }
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="TestData.HL7GeneratorTest">
+<TimeChanged>67486,52618.347290534</TimeChanged>
+<TimeCreated>67480,41482.313551377</TimeCreated>
+
+<Method name="Run">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+    Write !,"--- HL7Generator Tests ---",!
+
+    Set msg = ##class(DataGeneration.HL7Generator).Generate()
+
+    // check message starts right
+    Do ..Assert($Extract(msg,1,4)="MSH|","starts with MSH|")
+
+    // should have a PID
+    Do ..Assert(msg["PID|","has PID segment")
+
+    // should mention HL7 version
+    Do ..Assert(msg["2.3","has HL7 v2.3")
+
+    // gender check in PID
+    Set pid = $Piece(msg,"PID|",2)
+    Set gender = $Piece(pid,"|",8)
+    Do ..Assert($ListFind($LB("M","F"),gender)>0,"gender is M or F")
+
+    Write !,"HL7Generator Tests done",!
+]]></Implementation>
+</Method>
+
+<Method name="Assert">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>cond:%Boolean,msg:%String</FormalSpec>
+<Implementation><![CDATA[
+    If cond {
+        Write "PASS: ",msg,!
+    } Else {
+        Write "FAIL: ",msg,!
+    }
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="TestData.PatientGeneratorTest">
+<TimeChanged>67480,45297.675958321</TimeChanged>
+<TimeCreated>67480,41482.321091284</TimeCreated>
+
+<Method name="Run">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+    Write !,"--- PatientDataGenerator Tests ---",!
+
+    Set json = ##class(DataGeneration.PatientDataGenerator).Generate()
+    Set obj = {}.%FromJSON(json)
+
+    // make sure core fields exist
+    Do ..Assert(obj.%IsDefined("id"),"has id")
+    Do ..Assert(obj.%IsDefined("firstName"),"has firstName")
+    Do ..Assert(obj.%IsDefined("lastName"),"has lastName")
+    Do ..Assert(obj.%IsDefined("dob"),"has date of birth")
+
+    // gender check
+    Do ..Assert((obj.gender="male")!(obj.gender="female"),"gender ok")
+
+    // email sanity
+    Do ..Assert($Find(obj.email,"@")>0,"email has @")
+
+    Write !,"PatientDataGenerator Tests done",!
+]]></Implementation>
+</Method>
+
+<Method name="Assert">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>cond:%Boolean,msg:%String</FormalSpec>
+<Implementation><![CDATA[
+    If cond {
+        Write "PASS: ",msg,!
+    } Else {
+        Write "FAIL: ",msg,!
+    }
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="TestData.RunAll">
+<TimeChanged>67480,44647.01725912</TimeChanged>
+<TimeCreated>67480,44647.01725912</TimeCreated>
+
+<Method name="Run">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+    Write !,"=== Running All Tests ===",!
+
+    Do ##class(TestData.PatientGeneratorTest).Run()
+    Do ##class(TestData.FHIRGeneratorTest).Run()
+    Do ##class(TestData.HL7GeneratorTest).Run()
+
+    Write !,"=== All Tests Finished ===",!
+]]></Implementation>
+</Method>
+</Class>
+</Export>
