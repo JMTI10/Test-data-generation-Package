@@ -7,8 +7,19 @@
       <Packaging>module</Packaging>
       <Description>Test data generation utilities for Patient, FHIR, and HL7</Description>
       <Keywords>FHIR, HL7, Patient, TestData</Keywords>
-      <License>MIT</License>
-      <Author>YourName</Author>
+      
+      <Author>
+        <Person>
+          <Name>Iuri Goncalves</Name>
+          <Email>idg@live.com.pt</Email>
+        </Person>
+      </Author>
+
+      <Repository>
+        <Url>https://github.com/JMTI10/Test-data-generation-Package</Url>
+      </Repository>
+
+      
       <SourcesRoot>src/testdata</SourcesRoot>
       <Resource Name="DataGeneration.PatientDataGenerator.cls"/>
       <Resource Name="DataGeneration.FHIRGenerator.cls"/>
